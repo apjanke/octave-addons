@@ -18,8 +18,9 @@ All the code in here is experimental. Do not use it in any production code!
 
 ## Naming conventions
 
-Functions starting with `oct_addons_` are for the internal use of the octave-addons
-repo and are not expected to make it into user-visible code.
+Functions starting with `oct_addons_` and those in the `+oct_addons` namespace
+are for the internal use of the octave-addons repo and are not expected to
+make it into user-visible code or APIs.
 
 ## Dependencies
 
