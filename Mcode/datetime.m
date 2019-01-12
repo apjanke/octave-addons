@@ -20,7 +20,7 @@ classdef datetime
   
   methods (Static)
     function out = ofDatenum(dnums)
-      %OFDATENUM Convert datenums to datetimes
+      %OFDATENUM Convert datenums to datetimes.
       %
       % This is an Octave extension.
       out = datetime(dnums, 'ConvertFrom', 'datenum');
