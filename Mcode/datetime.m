@@ -29,16 +29,8 @@ classdef datetime
 
   methods
     
-    function out = hello(this)
-      %HELLO Display a "Hello, world!" message
-      %
-      % This method does nothing useful. It's just here to test whether method
-      % definitions are working.
-      out = 'Hello, world!';
-    end
-
     function this = datetime(varargin)
-      %DATETIME Construct a new datetime array
+      %DATETIME Construct a new datetime array.
       switch nargin
         case 0
           this = datetime(now, 'ConvertFrom', 'datenum');
@@ -105,7 +97,7 @@ classdef datetime
     end
       
     function display(this)
-      %DISPLAY Custom display
+      %DISPLAY Custom display.
       in_name = inputname(1);
       if ~isempty(in_name)
         fprintf('%s =\n', in_name);
@@ -114,7 +106,7 @@ classdef datetime
     end
 
     function disp(this)
-      %DISP Custom display
+      %DISP Custom display.
       if isempty(this)
         fprintf('Empty %s string\n', size2str(size(this)));
         return;
@@ -131,26 +123,26 @@ classdef datetime
     end
     
     function out = datestr(this, varargin)
-      %DATESTR Format as date string
+      %DATESTR Format as date string.
       out = datestr(this.dnums, varargin{:});
     end
     
     function out = datestrs(this, varargin)
-      %DATESTSRS Format as date strings
+      %DATESTSRS Format as date strings.
       % Returns cellstr.
-      % This is an Octave extension
+      % This is an Octave extension.
       s = datestr(this);
       c = cellstr(s);
       out = reshape(c, size(this));
     end
     
     function out = isnat(this)
-      %ISNAT True if this is NaT
+      %ISNAT True if input is NaT.
       out = isnan(this.dnums);
     end
     
     function out = isnan(this)
-      %ISNAN Alias for isnat
+      %ISNAN Alias for isnat.
       % This is an Octave extension
       out = isnat(this);
     end
