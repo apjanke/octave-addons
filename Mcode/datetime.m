@@ -29,6 +29,14 @@ classdef datetime
 
   methods
     
+    function out = hello(this)
+      %HELLO Display a "Hello, world!" message
+      %
+      % This method does nothing useful. It's just here to test whether method
+      % definitions are working.
+      out = 'Hello, world!';
+    end
+
     function this = datetime(varargin)
       %DATETIME Construct a new datetime array
       switch nargin
