@@ -140,7 +140,7 @@ classdef datetime
       % Returns cellstr.
       % This is an Octave extension
       s = datestr(this);
-      c = cellstr(this);
+      c = cellstr(s);
       out = reshape(c, size(this));
     end
     
