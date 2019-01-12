@@ -100,59 +100,59 @@ classdef datetime
           [Y,M,D,H,MI,S,MS] = varargin{:};
           this.dnums = datenum(Y, M, D, H, MI, S, MS);
         otherwise
-          error('Invalid number of inputs: %d', nargin);          
-      end
+          error('Invalid number of inputs: %d', nargin);
+      end    
+    end
       
-      function display(this)
-        %DISPLAY Custom display
-        in_name = inputname(1);
-        if ~isempty(in_name)
-          fprintf('%s =\n', in_name);
-        end
-        disp(this);
+    function display(this)
+      %DISPLAY Custom display
+      in_name = inputname(1);
+      if ~isempty(in_name)
+        fprintf('%s =\n', in_name);
       end
+      disp(this);
+    end
 
-      function disp(this)
-        %DISP Custom display
-        if isempty(this)
-          fprintf('Empty %s string\n', size2str(size(this)));
-          return;
-        end
-        out = oct_addons.util.format_dispstr_array(dispstrs(this));
-        fprintf('%s', out);
+    function disp(this)
+      %DISP Custom display
+      if isempty(this)
+        fprintf('Empty %s string\n', size2str(size(this)));
+        return;
       end
-      
-      function out = dispstrs(this)
-        %DISPSTRS Custom display strings.
-        % This is an Octave extension.
-        strs = cellstr(datestr(this.dnums));
-        out = reshape(strs, size(this));
-      end
-      
-      function out = datestr(this, varargin)
-        %DATESTR Format as date string
-        out = datestr(this.dnums, varargin{:});
-      end
-      
-      function out = datestrs(this, varargin)
-        %DATESTSRS Format as date strings
-        % Returns cellstr.
-        % This is an Octave extension
-        s = datestr(this);
-        c = cellstr(this);
-        out = reshape(c, size(this));
-      end
-      
-      function out = isnat(this)
-        %ISNAT True if this is NaT
-        out = isnan(this.dnums);
-      end
-      
-      function out = isnan(this)
-        %ISNAN Alias for isnat
-        % This is an Octave extension
-        out = isnat(this);
-      end
+      out = oct_addons.util.format_dispstr_array(dispstrs(this));
+      fprintf('%s', out);
+    end
+    
+    function out = dispstrs(this)
+      %DISPSTRS Custom display strings.
+      % This is an Octave extension.
+      strs = cellstr(datestr(this.dnums));
+      out = reshape(strs, size(this));
+    end
+    
+    function out = datestr(this, varargin)
+      %DATESTR Format as date string
+      out = datestr(this.dnums, varargin{:});
+    end
+    
+    function out = datestrs(this, varargin)
+      %DATESTSRS Format as date strings
+      % Returns cellstr.
+      % This is an Octave extension
+      s = datestr(this);
+      c = cellstr(this);
+      out = reshape(c, size(this));
+    end
+    
+    function out = isnat(this)
+      %ISNAT True if this is NaT
+      out = isnan(this.dnums);
+    end
+    
+    function out = isnan(this)
+      %ISNAN Alias for isnat
+      % This is an Octave extension
+      out = isnat(this);
     end
   end
 
@@ -210,12 +210,7 @@ classdef datetime
     %ISMATRIX True if input is a matrix.
     out = ismatrix(this.dnums);
     end
-    
-    function out = isnan(this)
-    %ISNAN True for Not-a-Number.
-    out = isnan2(this.dnums);
-    end
-    
+        
     function this = reshape(this, varargin)
     %RESHAPE Reshape array.
     this.dnums = reshape(this.dnums, varargin{:});
