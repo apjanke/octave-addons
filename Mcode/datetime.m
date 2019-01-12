@@ -5,6 +5,9 @@ classdef datetime
   %
   % This is an attempt to reproduce the functionality of Matlab's @datetime. It
   % also contains some Octave-specific extensions.
+  %
+  % TODO: Time zone support
+  % TODO: Remove proxykeys; they're not needed for a single numeric field.
   
   % @planarprecedence(dnums)
   % @planarsetops
@@ -31,6 +34,9 @@ classdef datetime
     
     function this = datetime(varargin)
       %DATETIME Construct a new datetime array.
+      
+      % TODO: Going to have to redo this whole thing to support trailing name/val
+      % options like 'TimeZone','local' and 'Format','xxxx'.
       switch nargin
         case 0
           this = datetime(now, 'ConvertFrom', 'datenum');
@@ -113,6 +119,9 @@ classdef datetime
       end
       out = oct_addons.util.format_dispstr_array(dispstrs(this));
       fprintf('%s', out);
+      if ~isempty(this.TimeZone)
+        fprintf('%s', this.TimeZone);
+      end
     end
     
     function out = dispstrs(this)
@@ -146,6 +155,45 @@ classdef datetime
       % This is an Octave extension
       out = isnat(this);
     end
+    
+    % Relational operations
+
+    function out = lt(A, B)
+      %LT Less than.
+      [A, B] = promote(A, B);
+      out = A.dnums < B.dnums;
+    end
+
+    function out = le(A, B)
+      %LE Less than or equal.
+      [A, B] = promote(A, B);
+      out = A.dnums <= B.dnums;
+    end
+
+    function out = ne(A, B)
+      %NE Not equal.
+      [A, B] = promote(A, B);
+      out = A.dnums ~= B.dnums;
+    end
+
+    function out = eq(A, B)
+      %EQ Equals.
+      [A, B] = promote(A, B);
+      out = A.dnums == B.dnums;
+    end
+
+    function out = ge(A, B)
+      %GE Greater than or equal.
+      [A, B] = promote(A, B);
+      out = A.dnums >= B.dnums;
+    end
+
+    function out = gt(A, B)
+      %GT Greater than.
+      [A, B] = promote(A, B);
+      out = A.dnums > B.dnums;
+    end
+
   end
 
   %%%%% START PLANAR-CLASS BOILERPLATE CODE %%%%%
@@ -557,6 +605,9 @@ end
 %%%%% END PLANAR-CLASS BOILERPLATE LOCAL FUNCTIONS %%%%%
 
 function varargout = promote(varargin)
+  %PROMOTE Promote inputs to be compatible
+  %
+  % TODO: TimeZone comparison and conversion
   varargout = varargin;
   for i = 1:numel(varargin)
     if ~isa(varargin{i}, 'datetime')
