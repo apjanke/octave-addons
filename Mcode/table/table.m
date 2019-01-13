@@ -233,6 +233,51 @@ classdef table
       end
     end
     
+    function out = subsasgn(this, s, val)
+      %SUBSASGN Subscripted assignment
+      chain_s = s(2:end);
+      s = s(1);
+      out = this;
+      switch s(1).type
+        case '()'
+          error('Assignment using ()-indexing is not supported for table');
+        case '{}'
+          rhs = val;
+          if numel(s.subs) ~= 2
+            error('{}-indexing of table requires exactly two arguments');
+          end
+          [ixRow, ixCol] = resolveRowColRefs(this, s.subs{1}, s.subs{2});
+          if ~isscalar(ixCol)
+            error('{}-indexing must reference a single variable; got %d', ...
+              numel(ixCol));
+          end
+          colData = this.VariableValues{ixCol};
+          if ~isempty(chain_s)
+            error('Chained {}-indexing is not implemented. Sorry.');
+          end
+          colData(ixRow) = val;
+          out.VariableValues{ixCol} = colData;
+        case '.'
+          out = setCol(this, s.subs, val);
+      end
+    end
+    
+    function ixCol = resolveColRef(this, colRef)
+      if isnumeric(colRef) || islogical(colRef)
+        ixCol = colRef;
+      elseif ischar(colRef) || iscellstr(colRef)
+        colRef = cellstr(colRef);
+        [tf,ixCol] = ismember(colRef, this.VariableNames);
+        if ~all(tf)
+          error('No such variable in table: %s', strjoin(colRef(~tf), ', '));
+        end
+      elseif isequal(colRef, ':')
+        ixCol = 1:width(this);
+      else
+        error('Unsupported column indexing operand type: %s', class(colRef));
+      end
+    end
+
     function [ixRow,ixCol] = resolveRowColRefs(this, rowRef, colRef)
       if isnumeric(rowRef) || islogical(rowRef)
         ixRow = rowRef;
@@ -250,18 +295,7 @@ classdef table
         error('Unsupported row indexing operand type: %s', class(rowRef));
       end
       
-      if isnumeric(colRef) || islogical(colRef)
-        ixCol = colRef;
-      elseif iscellstr(colRef)
-        [tf,ixCol] = ismember(colRef, this.VariableNames);
-        if ~all(tf)
-          error('No such variable in table: %s', strjoin(colRef(~tf), ', '));
-        end
-      elseif isequal(colRef, ':')
-        ixCol = 1:width(this);
-      else
-        error('Unsupported column indexing operand type: %s', class(colRef));
-      end
+      ixCol = resolveColRef(this, colRef);
     end
     
     function out = subsetRows(this, ixRows)
@@ -278,6 +312,16 @@ classdef table
       out = this;
       out.VariableNames = this.VariableNames(ixCols);
       out.VariableValues = this.VariableValues(ixCols);
+    end
+    
+    function out = setcol(this, colRef, value)
+      ixCol = resolveColRef(this, colRef);
+      out = this;
+      if size(value, 1) ~= height(this)
+        error('Inconsistent dimensions: table is height %d, input is height %d', ...
+          height(this), size(value, 1));
+      end
+      out.VariableValues{ixCol} = value;
     end
 
     % Display
