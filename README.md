@@ -1,7 +1,7 @@
 octave-addons
 ===============
 
-Experimental add-on functionality for GNU Octave
+Experimental add-on functionality for GNU Octave.
 
 This repo contains code I'm working on for GNU Octave, with the hopes of some
 of it making it into upstream GNU Octave.
@@ -26,6 +26,11 @@ Usage:
 Functions starting with `oct_addons_` and those in any namespace with `internal`
 in its name are for the internal use of the octave-addons repo and are not 
 expected to make it into user-visible code or APIs.
+
+## Related packages
+
+* Chrono: https://github.com/apjanke/octave-addons-chrono
+* Table: https://github.com/apjanke/octave-addons-table
 
 ## Dependencies
 
