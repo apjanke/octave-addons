@@ -20,9 +20,6 @@ classdef datetime
     % Time zone code as charvec
     TimeZone = ''
   end
-  properties (Constant)
-    NaT = datetime(NaN, 'Backdoor');
-  end
   
   methods (Static)
     function out = ofDatenum(dnums)
@@ -30,6 +27,10 @@ classdef datetime
       %
       % This is an Octave extension.
       out = datetime(dnums, 'ConvertFrom', 'datenum');
+    end
+    
+    function out = NaT()
+      out = datetime(NaN, 'Backdoor');
     end
   end
 
@@ -71,7 +72,11 @@ classdef datetime
             end
           end
         case 2
-          error('Invalid number of inputs: %d', nargin);
+          % Undocumented calling form for Octave's internal use
+          if ~isequal(varargin{2}, 'Backdoor')
+            error('Invalid number of inputs: %d', nargin);
+          end
+          this.dnums = varargin{1};
         case 3
           [in1,in2,in3] = varargin{:};
           if isequal(in2, 'ConvertFrom')
@@ -137,8 +142,12 @@ classdef datetime
     function out = dispstrs(this)
       %DISPSTRS Custom display strings.
       % This is an Octave extension.
-      strs = cellstr(datestr(this.dnums));
-      out = reshape(strs, size(this));
+      out = cell(size(this));
+      tfNaN = isnan(this.dnums);
+      out(tfNaN) = {'NaT'};
+      if any(~tfNaN)
+        out(~tfNaN) = cellstr(datestr(this.dnums(~tfNaN)));
+      end
     end
     
     function out = datestr(this, varargin)
@@ -640,10 +649,22 @@ function varargout = promote(varargin)
   %PROMOTE Promote inputs to be compatible
   %
   % TODO: TimeZone comparison and conversion
-  varargout = varargin;
-  for i = 1:numel(varargin)
-    if ~isa(varargin{i}, 'datetime')
-      varargout{i} = datetime(varargin{i});
+  args = varargin;
+  for i = 1:numel(args)
+    if ~isa(args{i}, 'datetime')
+      args{i} = datetime(args{i});
     end
   end
+  tz0 = args{tz0};
+  for i = 2:numel(args)
+    if ~isequal(args{i}.TimeZone, tz0)
+      if isempty(tz0) || isempty(args{i}.TimeZone)
+        error('Cannot mix zoned and zoneless datetimes.');
+      else
+        error('Mixing datetimes with different TimeZones is unimplemented.');
+        % TODO: implement this
+      end
+    end
+  end
+  varargout = args;
 end

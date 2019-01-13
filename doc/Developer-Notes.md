@@ -14,11 +14,14 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
 ### TODO
 
 * `datetime`
+  * Fix crash when constructing datetime
+  * Validate TimeZones on subsref assignment and concatenation
   * `Format` support
   * Time zone conversion
   * Leap second conversion
   * Date component (Year/Month/Day/...) property access
   * Additional `ConvertFrom` types
+  * Remove proxykeys
 * Fix parsing bug with that trailing data/time zone in the zoneinfo files
 * `calDuration` and its associated functions
 * Plotting support
@@ -26,6 +29,8 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
 * `duration`
   * `InputFmt` support
   * `Format` support
+  * Remove proxykeys
+
 
 ## table
 
