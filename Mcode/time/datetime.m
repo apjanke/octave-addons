@@ -109,6 +109,14 @@ classdef datetime
           error('Invalid number of inputs: %d', nargin);
       end    
     end
+    
+    function this = set.TimeZone(this, x)
+      if ~ischar(x) || ~isrow(x)
+        error('TimeZone must be a char row vector; got a %s %s', ...
+          size2str(size(x)), class(x));
+      end
+      this.TimeZone = x;
+    end
       
     function display(this)
       %DISPLAY Custom display.
@@ -127,7 +135,7 @@ classdef datetime
         str = dispstrs(this);
         str = str{1};
         if ~isempty(this.TimeZone)
-          str = [str ' ' this.TimeZone'];
+          str = [str ' ' this.TimeZone];
         end
         fprintf(' %s\n', str);
       else
@@ -667,4 +675,56 @@ function varargout = promote(varargin)
     end
   end
   varargout = args;
+end
+
+function out = size2str(sz)
+%SIZE2STR Format an array size for display
+%
+% out = size2str(sz)
+%
+% Sz is an array of dimension sizes, in the format returned by SIZE.
+%
+% Examples:
+%
+% size2str(magic(3))
+
+strs = cell(size(sz));
+for i = 1:numel(sz)
+	strs{i} = sprintf('%d', sz(i));
+end
+
+out = strjoin(strs, '-by-');
+end
+
+function varargout = scalarexpand(varargin)
+%SCALAREXPAND Expand scalar inputs to be same size as nonscalar inputs
+
+sz = [];
+
+for i = 1:nargin
+	if ~isscalar(varargin{i})
+		sz_i = size(varargin{i});
+		if isempty(sz)
+			sz = sz_i;
+		else
+			if ~isequal(sz, sz_i)
+				error('jl:InconsistentDimensions', 'Matrix dimensions must agree (%s vs %s)',...
+					size2str(sz), size2str(sz_i))
+			end
+		end
+	end
+end
+
+varargout = varargin;
+
+if isempty(sz)
+	return
+end
+
+for i = 1:nargin
+	if isscalar(varargin{i})
+    varargout{i} = repmat(varargin{i}, sz);
+	end
+end
+
 end
