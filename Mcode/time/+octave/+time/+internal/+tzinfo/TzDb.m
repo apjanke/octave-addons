@@ -27,6 +27,10 @@ classdef TzDb
     
     function out = dbVersion(this)
       %DBVERSION Version of the zoneinfo database this is reading
+      %
+      % out = dbVersion(this)
+      %
+      % Returns the zoneinfo database version as a string.
       versionFile = [this.path '/+VERSION'];
       txt = slurpTextFile(versionFile);
       out = strtrim(txt);
@@ -53,11 +57,22 @@ classdef TzDb
     
     function out = definedZones(this)
       %DEFINEDZONES List defined zone IDs
+      %
+      % out = definedZones(this)
       tab = this.zoneTab;
       out = tab.TZ;
     end
     
     function out = zoneDefinition(this, zoneId)
+      %ZONEDEFINITION Get the time zone definition for a given time zone
+      %
+      % out = zoneDefinition(this, zoneId)
+      %
+      % zoneId (char) is the time zone identifier in IANA format. For example,
+      % 'UTC' or 'America/New_York'.
+      %
+      % Returns the zone definition as an object. (This is currently under
+      % construction; it now returns a placeholder struct.)
       out = this.readZoneFile(zoneId);
     end
   end

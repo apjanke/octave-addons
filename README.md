@@ -23,14 +23,18 @@ Usage:
 
 ## Naming conventions
 
-Functions starting with `oct_addons_` and those in the `+oct_addons` namespace
-are for the internal use of the octave-addons repo and are not expected to
-make it into user-visible code or APIs.
+Functions starting with `oct_addons_` and those in any namespace with `internal`
+in its name are for the internal use of the octave-addons repo and are not 
+expected to make it into user-visible code or APIs.
 
 ## Dependencies
 
 The planar-gen code used to generate class definitions is from
 [Janklab](https://github.com/apjanke/janklab).
+
+## Documentation
+
+See the `doc/` directory, especially for [Developer Notes](doc/Developer-Notes.md).
 
 ## Author
 
