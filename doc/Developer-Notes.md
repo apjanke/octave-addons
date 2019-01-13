@@ -14,7 +14,6 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
 ### TODO
 
 * `datetime`
-  * Validate TimeZones on subsref assignment and concatenation
   * `Format` support
   * Time zone conversion
   * Leap second conversion
