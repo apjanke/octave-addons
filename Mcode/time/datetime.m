@@ -231,7 +231,7 @@ classdef datetime
     % Arithmetic
     
     function out = plus(A, B)
-      %PLUS Addition
+      %PLUS Addition.
       if ~isa(A, 'datetime')
         error('Expected left-hand side of A + B to be a datetime; got a %s', ...
           class(A));
@@ -247,7 +247,7 @@ classdef datetime
     end
     
     function out = minus(A, B)
-      %MINUS Subtraction
+      %MINUS Subtraction.
       if isa(A, 'datetime') && isa(B, 'datetime')
         out = duration.ofDays(A.dnums - B.dnums);
       else
