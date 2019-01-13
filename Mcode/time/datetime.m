@@ -390,6 +390,11 @@ classdef datetime
         out = A + -B;
       end
     end
+    
+    function out = diff(this)
+      %DIFF Differences between elements
+      out = duration.ofDays(diff(this.dnums));
+    end
   end
 
   %%%%% START PLANAR-CLASS BOILERPLATE CODE %%%%%
