@@ -27,7 +27,6 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
   * Time zone conversion
   * Leap second conversion
   * Additional `ConvertFrom` types
-  * POSIX to datetime conversion (for TzDb display and use)
   * Remove proxykeys
   * Trailing name/val option support in constructor
   * SystemTimeZone non-Java implementation

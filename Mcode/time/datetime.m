@@ -30,6 +30,9 @@ classdef datetime
     Minute
     Second
   end
+  properties (Constant)
+    PosixEpochDatenum = datenum(1970, 1, 1);
+  end
   
   methods (Static)
     function out = ofDatenum(dnums)
@@ -72,6 +75,23 @@ classdef datetime
       end
       zone = javaMethod('getDefault', 'java.util.TimeZone');
       out = char(zone.getID());
+    end
+    
+    function out = posix2datenum(pdates)
+      %POSIX2DATENUM Convert POSIX times to datenums
+      %
+      % out = posix2datenum(pdates)
+      %
+      % Pdates (numeric) is an array of POSIX dates. A POSIX date is the number
+      % of seconds since January 1, 1970 UTC, excluding leap seconds.
+      out = (double(pdates) / (24 * 60 * 60)) + datetime.PosixEpochDatenum;
+    end
+    
+    function out = datenum2posix(dnums)
+      %DATENUM2POSIX Convert datenums to POSIX times
+      %
+      % Returns int64.
+      out = int64((dnums - datetime.PosixEpochDatenum) * (24 * 60 * 60));
     end
   end
 
@@ -124,6 +144,9 @@ classdef datetime
             switch in3
               case 'datenum'
                 this.dnums = double(in1);
+              case 'posixtime'
+                this.dnums = datetime.posix2datenum(in1);
+                this.TimeZone = 'UTC';
               otherwise
                 error('Unsupported ConvertFrom format: %s', in3);
                 % TODO: Implement more formats
