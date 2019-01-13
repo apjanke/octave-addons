@@ -21,6 +21,8 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
   * Date component (Year/Month/Day/...) property access
   * Additional `ConvertFrom` types
   * Remove proxykeys
+* `TzDb`
+  * Fix defined time zone listing: the list in zone.tab is not complete
 * Fix parsing bug with that trailing data/time zone in the zoneinfo files
 * `calDuration` and its associated functions
 * Plotting support

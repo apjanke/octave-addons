@@ -119,6 +119,9 @@ classdef datetime
       if ~ismember(x, tzdb.definedZones)
         error('Undefined TimeZone: %s', x);
       end
+      if ~isempty(this.TimeZone) && ~isempty(x)
+        this.dnums = datetime.convertDatenumTimeZone(this.dnums, this.TimeZone, x);
+      end
       this.TimeZone = x;
     end
       
@@ -632,6 +635,11 @@ classdef datetime
   
   %%%%% END PLANAR-CLASS BOILERPLATE CODE %%%%%
 
+  methods (Static)
+    function out = convertDatenumTimeZone(dnum, fromZone, toZone)
+      error('TimeZone conversion is unimplemented. Sorry.');
+    end
+  end
 end
 
 
@@ -673,8 +681,7 @@ function varargout = promote(varargin)
       if isempty(tz0) || isempty(args{i}.TimeZone)
         error('Cannot mix zoned and zoneless datetimes.');
       else
-        error('Mixing datetimes with different TimeZones is unimplemented.');
-        % TODO: implement this
+        args{i}.TimeZone = tz0;
       end
     end
   end
