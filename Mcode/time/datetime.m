@@ -19,6 +19,8 @@ classdef datetime
   properties
     % Time zone code as charvec. Assigning a new TimeZone performs time zone conversion.
     TimeZone = ''
+    % Format to display these dates in. Changing the format is currently unimplemented.
+    Format = 'default'
   end
   
   methods (Static)
@@ -123,6 +125,10 @@ classdef datetime
         this.dnums = datetime.convertDatenumTimeZone(this.dnums, this.TimeZone, x);
       end
       this.TimeZone = x;
+    end
+    
+    function this = set.Format(this, x)
+      error('Changing datetime format is currently unimplemented');
     end
       
     function display(this)
