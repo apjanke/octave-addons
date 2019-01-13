@@ -35,7 +35,8 @@ classdef TzDb
     function out = zoneTab(this)
       %ZONETAB Get the zone definition table
       %
-      % This lists
+      % This lists the metadata from the "zone.tab" file included in the
+      % zoneinfo database.
       %
       % Returns a struct with fields:
       %   CountryCode
@@ -43,7 +44,6 @@ classdef TzDb
       %   TZ
       %   Comments
       % Each of which contains a cellstr column vector.
-      
       persistent data
       if isempty(data)
         data = this.readZoneTab();
