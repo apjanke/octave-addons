@@ -22,6 +22,14 @@ classdef datetime
     % Format to display these dates in. Changing the format is currently unimplemented.
     Format = 'default'
   end
+  properties (Dependent = true)
+    Year
+    Month
+    Day
+    Hour
+    Minute
+    Second
+  end
   
   methods (Static)
     function out = ofDatenum(dnums)
@@ -29,6 +37,25 @@ classdef datetime
       %
       % This is an Octave extension.
       out = datetime(dnums, 'ConvertFrom', 'datenum');
+    end
+    
+    function out = ofDatestruct(dstruct)
+      %OFDATESTRUCT Convert "datestruct" to datetimes.
+      dnums = datetime.datestruct2datenum(dstruct);
+      out = datetime(dnums, 'ConvertFrom', 'datenum');
+    end
+    
+    function out = datestruct2datenum(dstruct)
+      sz = size(dstruct.Year);
+      n = numel(dstruct.Year);
+      dvec = NaN(n, 6);
+      dvec(:,1) = dstruct.Year(:);
+      dvec(:,2) = dstruct.Month(:);
+      dvec(:,3) = dstruct.Day(:);
+      dvec(:,4) = dstruct.Hour(:);
+      dvec(:,5) = dstruct.Minute(:);
+      dvec(:,6) = dstruct.Second(:);
+      out = datenum(dvec);
     end
     
     function out = NaT()
@@ -142,6 +169,83 @@ classdef datetime
     function this = set.Format(this, x)
       error('Changing datetime format is currently unimplemented');
     end
+    
+    function out = get.Year(this)
+      s = datestruct(this);
+      out = s.Year;
+    end
+    
+    function this = set.Year(this, x)
+      s = datestruct(this);
+      s.Year(:) = x;
+      this.dnums = datetime.datestruct2datenum(s);
+    end
+      
+    function out = get.Month(this)
+      s = datestruct(this);
+      out = s.Month;
+    end
+    
+    function this = set.Month(this, x)
+      s = datestruct(this);
+      s.Month(:) = x;
+      this.dnums = datetime.datestruct2datenum(s);
+    end
+      
+    function out = get.Month(this)
+      s = datestruct(this);
+      out = s.Month;
+    end
+    
+    function this = set.Month(this, x)
+      s = datestruct(this);
+      s.Month(:) = x;
+      this.dnums = datetime.datestruct2datenum(s);
+    end
+      
+    function out = get.Day(this)
+      s = datestruct(this);
+      out = s.Day;
+    end
+    
+    function this = set.Day(this, x)
+      s = datestruct(this);
+      s.Day(:) = x;
+      this.dnums = datetime.datestruct2datenum(s);
+    end
+      
+    function out = get.Hour(this)
+      s = datestruct(this);
+      out = s.Hour;
+    end
+    
+    function this = set.Hour(this, x)
+      s = datestruct(this);
+      s.Hour(:) = x;
+      this.dnums = datetime.datestruct2datenum(s);
+    end
+      
+    function out = get.Minute(this)
+      s = datestruct(this);
+      out = s.Minute;
+    end
+    
+    function this = set.Minute(this, x)
+      s = datestruct(this);
+      s.Minute(:) = x;
+      this.dnums = datetime.datestruct2datenum(s);
+    end
+      
+    function out = get.Second(this)
+      s = datestruct(this);
+      out = s.Second;
+    end
+    
+    function this = set.Second(this, x)
+      s = datestruct(this);
+      s.Second(:) = x;
+      this.dnums = datetime.datestruct2datenum(s);
+    end
       
     function display(this)
       %DISPLAY Custom display.
@@ -197,6 +301,20 @@ classdef datetime
       out = reshape(c, size(this));
     end
     
+    function out = datestruct(this)
+      %DATESTRUCT Convert to a "datestruct" broken-down time
+      %
+      % This is an Octave extension.
+      dvec = datevec(this.dnums);
+      sz = size(this);
+      out.Year = reshape(dvec(:,1), sz);
+      out.Month = reshape(dvec(:,2), sz);
+      out.Day = reshape(dvec(:,3), sz);
+      out.Hour = reshape(dvec(:,4), sz);
+      out.Minute = reshape(dvec(:,5), sz);
+      out.Second = reshape(dvec(:,6), sz);
+    end
+
     function out = isnat(this)
       %ISNAT True if input is NaT.
       out = isnan(this.dnums);

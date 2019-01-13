@@ -17,7 +17,6 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
   * `Format` support
   * Time zone conversion
   * Leap second conversion
-  * Date component (Year/Month/Day/...) property access
   * Additional `ConvertFrom` types
   * Remove proxykeys
   * Trailing name/val option support in constructor
