@@ -191,6 +191,95 @@ classdef table
       end
     end
     
+    function out = subsref(this, s)
+      chain_s = s(2:end);
+      s = s(1);
+      switch s(1).type
+        case '()'
+          if numel(s.subs) ~= 2
+            error('()-indexing of table requires exactly two arguments');
+          end
+          [ixRow, ixCol] = resolveRowColRefs(this, s.subs{1}, s.subs{2});
+          out = this;
+          out = subsetRows(out, ixRow);
+          out = subsetCols(out, ixCol);
+        case '{}'
+          if numel(s.subs) ~= 2
+            error('{}-indexing of table requires exactly two arguments');
+          end
+          [ixRow, ixCol] = resolveRowColRefs(this, s.subs{1}, s.subs{2});
+          if numel(ixRow) ~= 1 && numel(ixCol) ~= 1
+            error('{}-indexing of table requires one of the inputs to be scalar');
+          end
+          % I'm not sure how to handle the signature here yet
+          if numel(ixCol) > 1
+            error('{}-indexing across multiple columns is currently unimplemented');
+          end
+          if numel(ixRow) > 1
+            error('{}-indexing across multiple rows is currently unimplemented');
+          end
+          colData = this.VariableValues{ixCol};
+          out = colData(ixRow);
+        case '.'
+          name = s.subs;
+          if ~ischar(name)
+            error('.-reference arguments must be char');
+          end
+          out = getVar(this, name);
+      end
+      % Chained references
+      if ~isempty(chain_s)
+        out = subsref(out, chain_s);
+      end
+    end
+    
+    function [ixRow,ixCol] = resolveRowColRefs(this, rowRef, colRef)
+      if isnumeric(rowRef) || islogical(rowRef)
+        ixRow = rowRef;
+      elseif iscellstr(rowRef)
+        if isempty(this.RowNames)
+          error('this table has no RowNames');
+        end
+        [tf,ixRow] = ismember(rowRef, this.RowNames);
+        if ~all(tf)
+          error('No such named row in table: %s', strjoin(rowRef(~tf), ', '));
+        end
+      elseif isequal(rowRef, ':')
+        ixRow = 1:width(this);
+      else
+        error('Unsupported row indexing operand type: %s', class(rowRef));
+      end
+      
+      if isnumeric(colRef) || islogical(colRef)
+        ixCol = colRef;
+      elseif iscellstr(colRef)
+        [tf,ixCol] = ismember(colRef, this.VariableNames);
+        if ~all(tf)
+          error('No such variable in table: %s', strjoin(colRef(~tf), ', '));
+        end
+      elseif isequal(colRef, ':')
+        ixCol = 1:width(this);
+      else
+        error('Unsupported column indexing operand type: %s', class(colRef));
+      end
+    end
+    
+    function out = subsetRows(this, ixRows)
+      out = this;
+      for i = 1:width(this)
+        out.VariableValues{i} = out.VariableValues{i}(ixRows,:);
+      end
+      if ~isempty(this.RowNames)
+        out.RowNames = out.RowNames(ixRows);
+      end
+    end
+    
+    function out = subsetCols(this, ixCols)
+      out = this;
+      out.VariableNames = this.VariableNames(ixCols);
+      out.VariableValues = this.VariableValues(ixCols);
+    end
+
     % Display
     
     function display(this)
@@ -272,6 +361,16 @@ classdef table
 
     function out = shiftdims(this,varargin)
       error('Function shiftdims is not supported for tables');
+    end
+  end
+  
+  methods (Access = private)
+    function out = getVar(this, name)
+      [tf,loc] = ismember(name, this.VariableNames);
+      if ~tf
+        error('table has no variable named ''%s''', name);
+      end
+      out = this.VariableValues{loc};
     end
   end
 end
