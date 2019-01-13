@@ -486,6 +486,7 @@ classdef datetime
     end
     
     function out = colon(this, varargin)
+      narginchk(2, 3);
       switch nargin
         case 2
           limit = varargin{1};
@@ -493,8 +494,6 @@ classdef datetime
         case 3
           increment = varargin{1};
           limit = varargin{2};
-        otherwise
-          error('Invalid number of arguments');
       end
       if isnumeric(increment)
         increment = duration.ofDays(increment);
@@ -507,6 +506,21 @@ classdef datetime
       end
       out = this;
       out.dnums = this.dnums:increment.days:limit.dnums;
+    end
+    
+    function out = linspace(from, to, n)
+      %LINSPACE Linearly-spaced values
+      narginchk(2, 3);
+      if nargin < 3; n = 100; end
+      if isnumeric(from)
+        from = datetime.ofDatenum(from);
+      end
+      [from, to] = promote(from, to);
+      if ~isscalar(from) || ~isscalar(to)
+        error('Inputs must be scalar');
+      end
+      out = from;
+      out.dnums = linspace(from.dnums, to.dnums, n);
     end
   end
 
