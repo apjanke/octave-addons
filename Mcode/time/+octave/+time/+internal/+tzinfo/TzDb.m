@@ -92,7 +92,25 @@ classdef TzDb
       %
       % Returns the zone definition as an object. (This is currently under
       % construction; it now returns a placeholder struct.)
-      out = this.readZoneFile(zoneId);
+      s = this.readZoneFile(zoneId);
+
+      % We prefer the version 2 stuff
+      out = octave.time.internal.tzinfo.TzInfo;
+      if isfield(s, 'section2')
+        defn_s = s.section2;
+        out.goingForwardPosixZone = s.goingForwardPosixZone;
+      else
+        defn_s = s.section1;
+      end
+      out.id = zoneId;
+      out.formatId = defn_s.header.format_id;
+      out.transitions = defn_s.transitions;
+      out.timeTypes = defn_s.time_types;
+      out.ttinfos = defn_s.ttinfos;
+      out.leapTimes = defn_s.leap_times;
+      out.leapSecondTotals = defn_s.leap_second_totals;
+      out.isStd = defn_s.is_std;
+      out.isGmt = defn_s.is_gmt;
     end
   end
   
