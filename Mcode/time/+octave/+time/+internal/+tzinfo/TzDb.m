@@ -19,7 +19,7 @@ classdef TzDb
       % and an error on Windows).
       if nargin < 1;  path = [];  end
       if isempty(path)
-        this.path = oct_addons.tzinfo.TzDb.defaultPath;
+        this.path = octave.time.internal.tzinfo.TzDb.defaultPath;
       else
         this.path = path;
       end

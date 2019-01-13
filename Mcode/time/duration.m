@@ -91,7 +91,7 @@ classdef duration
         fprintf('Empty %s %s\n', size2str(size(this)), class(this));
         return;
       end
-      out = oct_addons.util.format_dispstr_array(dispstrs(this));
+      out = octave.internal.util.format_dispstr_array(dispstrs(this));
       fprintf('%s', out);
     end
     

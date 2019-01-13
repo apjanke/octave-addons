@@ -70,7 +70,7 @@ classdef string
         my_dispstrs = strcat({'"'}, this.strs, {'"'});
         my_dispstrs = strrep(my_dispstrs, sprintf('\r'), '\r');
         my_dispstrs = strrep(my_dispstrs, sprintf('\n'), '\n');
-        out = oct_addons.util.format_dispstr_array(my_dispstrs);
+        out = octave.internal.util.format_dispstr_array(my_dispstrs);
         fprintf('%s', out);
       end
 
