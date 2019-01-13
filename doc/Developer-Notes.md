@@ -16,8 +16,7 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
 * `datetime`
   * `Format` support
     * Needs LDML format support, not datestr() format placeholders
-  * year/quarter/month/week/day/hour/minute/second functions
-  * ymd/hms/split/time/timeofday functions
+  * week() function
   * isdst/isweekend
   * between, caldiff, dateshift, isbetween
   * colon operator
@@ -40,6 +39,7 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
   * `InputFmt` support
   * `Format` support
   * Remove proxykeys
+  * split()
   * linspace()
   * colon operator?
 

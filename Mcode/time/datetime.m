@@ -246,6 +246,72 @@ classdef datetime
       s.Second(:) = x;
       this.dnums = datetime.datestruct2datenum(s);
     end
+    
+    function out = year(this)
+      out = this.Year;
+    end
+      
+    function out = month(this)
+      out = this.Month;
+    end
+      
+    function out = day(this)
+      out = this.Day;
+    end
+      
+    function out = hour(this)
+      out = this.Hour;
+    end
+      
+    function out = minute(this)
+      out = this.Minute;
+    end
+      
+    function out = second(this)
+      out = this.Second;
+    end
+    
+    function out = quarter(this)
+      out = ceil(this.Month / 3);
+    end
+    
+    function [y,m,d] = ymd(this)
+      s = datestruct(this);
+      y = s.Year;
+      m = s.Month;
+      d = s.Day;
+    end
+    
+    function [h,m,s] = hms(this)
+      st = datestruct(this);
+      h = st.Hour;
+      m = st.Minute;
+      s = st.Second;
+    end
+    
+    function [y,m,d,h,mi,s] = ymdhms(this)
+      %YMDHMS Get the year, month, day, etc components of this.
+      %
+      % This is an Octave extension.
+      ds = datestruct(this);
+      y = ds.Year;
+      m = ds.Month;
+      d = ds.Day;
+      h = ds.Hour;
+      mi = ds.Minute;
+      s = ds.Second;
+    end
+    
+    function out = timeofday(this)
+      %TIMEOFDAY Elapsed time since midnight.
+      
+      % Use mod, not rem, so negative dates give correct result
+      out = duration.ofDays(mod(this.dnums, 1));
+    end
+    
+    function out = week(this)
+      error('week() is unimplemented');
+    end
       
     function display(this)
       %DISPLAY Custom display.
