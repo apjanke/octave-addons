@@ -142,12 +142,6 @@ classdef TzDb
       data = slurpBinaryFile(zoneFile);
       
       % Parse tzinfo format file
-      %magic = data(1:4);
-      %magic_char = char(magic);
-      %format_id_byte = data(5);
-      %format_id = char(format_id_byte);
-      %reserved = data(6:20);
-      %ix = 21;
       ix = 1;
       [section1, n_bytes_read] = this.parseZoneSection(data(ix:end), 1);
       out.section1 = section1;
