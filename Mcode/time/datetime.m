@@ -115,6 +115,10 @@ classdef datetime
         error('TimeZone must be a char row vector; got a %s %s', ...
           size2str(size(x)), class(x));
       end
+      tzdb = octave.time.internal.tzinfo.TzDb.instance;
+      if ~ismember(x, tzdb.definedZones)
+        error('Undefined TimeZone: %s', x);
+      end
       this.TimeZone = x;
     end
       

@@ -8,6 +8,17 @@ classdef TzDb
     path
   end
   
+  methods (Static)
+    function out = instance()
+      %INSTANCE Shared global instance of TzDb
+      persistent value
+      if isempty(value)
+        value = octave.time.internal.tzinfo.TzDb;
+      end
+      out = value;
+    end
+  end
+
   methods
     function this = TzDb(path)
       %TZDB Construct a new TzDb object
