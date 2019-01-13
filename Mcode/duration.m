@@ -1,107 +1,81 @@
-classdef datetime
-  %DATETIME Date/time values
+classdef duration
+  %DURATION Lengths of time in fixed-length units
   %
-  % Datetime represents points in time using the ISO calendar.
-  %
-  % This is an attempt to reproduce the functionality of Matlab's @datetime. It
-  % also contains some Octave-specific extensions.
-  %
-  % TODO: Time zone support
-  % TODO: Remove proxykeys; they're not needed for a single numeric field.
+  % Duration values are stored as double numbers of days, so they are an
+  % approximate type. In display functions, by default, they are displayed with
+  % millisecond precision, but their actual precision is closer to nanoseconds
+  % for typical times.
   
-  % @planarprecedence(dnums)
+  % @planarprecedence(days)
   % @planarsetops
   % @planarrelops
   
-  properties (Access = private)
-    dnums % @planar
-  end
   properties
-    % Time zone code as charvec
-    TimeZone = ''
+    % Duration length in whole and fractional days (double)
+    days = 0 % @planar
   end
   
   methods (Static)
-    function out = ofDatenum(dnums)
-      %OFDATENUM Convert datenums to datetimes.
-      %
-      % This is an Octave extension.
-      out = datetime(dnums, 'ConvertFrom', 'datenum');
+    function out = ofDays(dnums)
+      %OFDAYS Convert days/datenums to durations
+      out = duration(dnums, 'Backdoor');
     end
   end
 
   methods
-    
-    function this = datetime(varargin)
-      %DATETIME Construct a new datetime array.
-      
-      % TODO: Going to have to redo this whole thing to support trailing name/val
-      % options like 'TimeZone','local' and 'Format','xxxx'.
-      switch nargin
-        case 0
-          this = datetime(now, 'ConvertFrom', 'datenum');
+    function this = duration(varargin)
+      %DURATION Construct a new duration array
+      args = varargin;
+      % Peel off options
+      knownOptions = {'InputFormat','Format'};
+      opts = struct;
+      while numel(args) >= 3 && isa(args{end-1}, 'char') ...
+          && ismember(args{end-1}, knownOptions)
+        opts.(args{end-1}) = args{end};
+        args(end-1:end) = [];
+      end
+      % Handle inputs
+      switch numel(args)
         case 1
-          x = varargin{1};
-          if isnumeric(x)
-            % Convert date vectors
-            this.dnums = datenum(x);
-          elseif ischar(x) || iscellstr(x) || isa(x, 'string')
-            x = cellstr(x);
-            tfRelative = ismember(x, {'today','tomorrow','yesterday','now'});
-            if all(tfRelative)
-              if ~isscalar(x)
-                error('Multiple arguments not allowed for relativeDay format');
-              end
-              switch x{1}
-                case 'yesterday'
-                  this.dnums = floor(now) - 1;
-                case 'today'
-                  this.dnums = floor(now);
-                case 'tomorrow'
-                  this.dnums = floor(now) + 1;
-                case 'now'
-                  this.dnums = now;
-              end
-            else
-              % They're datestrs
-              this.dnums = reshape(datenum(x), size(x));
+          in = args{1};
+          if isnumeric(in)
+            switch size(in, 2)
+              case 3
+                [H,MI,S] = deal(in(:,1), in(:,2), in(:,3));
+                this.days = duration.hms2datenum(H, MI, S, 0);
+              case 4
+                [H,MI,S,MS] = deal(in(:,1), in(:,2), in(:,3), in(:,4));
+                this.days = duration.hms2datenum(H, MI, S, MS);
+              otherwise
+                error('Numeric inputs must be 3 or 4 columns wide.');
             end
+          else
+            in = cellstr(in);
+            if isfield(opts, 'InputFormat')
+              error('InputFormat is not implemented yet');
+            end
+            this.days = duration.parseTimeStringsToDatenum(in);
           end
         case 2
-          error('Invalid number of inputs: %d', nargin);
-        case 3
-          [in1,in2,in3] = varargin{:};
-          if isequal(in2, 'ConvertFrom')
-            switch in3
-              case 'datenum'
-                this.dnums = double(in1);
-              otherwise
-                error('Unsupported ConvertFrom format: %s', in3);
-                % TODO: Implement more formats
-            end
-          elseif isequal(in2, 'InputFormat')
-            dstrs = cellstr(in1);
-            format = in3;
-            this.dnums = reshape(datenum(dstrs, format), size(dstrs));
-          elseif isnumeric(in2)
-            [Y,M,D] = varargin{:};
-            this.dnums = datenum(Y, M, D);
+          % Undocumented calling form for internal use
+          if ~isequal(args{2}, 'Backdoor')
+            error('Invalid number if inputs: %d', numel(args));
           end
+          if ~isa(args{1}, 'double')
+            error('Input must be double; got %s', class(args{1}));
+          end
+          this.days = args{1};
+        case 3
+          [H,MI,S] = args{:};
+          this.days = duration.hms2datenum(H, MI, S, 0);
         case 4
-          error('Invalid number of inputs: %d', nargin);
-        case 5
-          error('Invalid number of inputs: %d', nargin);
-        case 6
-          [Y,M,D,H,MI,S] = varargin{:};
-          this.dnums = datenum(Y, M, D, H, MI, S);
-        case 7
-          [Y,M,D,H,MI,S,MS] = varargin{:};
-          this.dnums = datenum(Y, M, D, H, MI, S, MS);
+          [H,MI,S,MS] = args{:};
+          this.days = duration.hms2datenum(H, MI, S, MS);
         otherwise
-          error('Invalid number of inputs: %d', nargin);
-      end    
+          error('Invalid number if inputs: %d', numel(args));
+      end
     end
-      
+
     function display(this)
       %DISPLAY Custom display.
       in_name = inputname(1);
@@ -115,113 +89,183 @@ classdef datetime
       %DISP Custom display.
       if isempty(this)
         fprintf('Empty %s %s\n', size2str(size(this)), class(this));
-      elseif isscalar(this)
-        str = dispstrs(this);
-        str = str{1};
-        if ~isempty(this.TimeZone)
-          str = [str ' ' this.TimeZone'];
-        end
-        fprintf(' %s\n', str);
-      else
-        out = oct_addons.util.format_dispstr_array(dispstrs(this));
-        fprintf('%s', out);
-        if ~isempty(this.TimeZone)
-          fprintf('%s', this.TimeZone);
-        end
+        return;
       end
+      out = oct_addons.util.format_dispstr_array(dispstrs(this));
+      fprintf('%s', out);
     end
     
     function out = dispstrs(this)
       %DISPSTRS Custom display strings.
       % This is an Octave extension.
-      strs = cellstr(datestr(this.dnums));
-      out = reshape(strs, size(this));
+      out = cell(size(this));
+      for i = 1:numel(this)
+        d = this.days(i);
+        if isnan(d)
+          out{i} = 'NaT';
+          continue
+        end
+        str = '';
+        if d < 0
+          str = [str '-'];
+          d = abs(d);
+        end
+        if d > 1
+          str = [str sprintf('%d days ', floor(d))];
+          d = mod(d,1);
+        end
+        millis = round(d * 24 * 60 * 60 * 1000);
+        sec = millis / 1000;
+        fracSec = rem(sec,1);
+        x = floor(sec);
+        hours = floor(x / (60 * 60));
+        x = rem(x, (60 * 60));
+        minutes = floor(x / 60);
+        x = rem(x, 60);
+        seconds = x;
+        msec = round(fracSec * 1000);
+        if msec == 1000
+          seconds = seconds + 1;
+          msec = 0;
+        end
+        str = [str sprintf('%02d:%02d:%02d', hours, minutes, seconds)];
+        if msec >= 1
+          str = [str '.' sprintf('%03d', msec)];
+        end
+        out{i} = str;
+      end
     end
     
-    function out = datestr(this, varargin)
-      %DATESTR Format as date string.
-      out = datestr(this.dnums, varargin{:});
-    end
-    
-    function out = datestrs(this, varargin)
-      %DATESTSRS Format as date strings.
-      % Returns cellstr.
-      % This is an Octave extension.
-      s = datestr(this);
-      c = cellstr(s);
-      out = reshape(c, size(this));
-    end
-    
-    function out = isnat(this)
-      %ISNAT True if input is NaT.
-      out = isnan(this.dnums);
-    end
-    
-    function out = isnan(this)
-      %ISNAN Alias for isnat.
-      % This is an Octave extension
-      out = isnat(this);
-    end
-    
-    % Relational operations
-
-    function out = lt(A, B)
-      %LT Less than.
-      [A, B] = promote(A, B);
-      out = A.dnums < B.dnums;
-    end
-
-    function out = le(A, B)
-      %LE Less than or equal.
-      [A, B] = promote(A, B);
-      out = A.dnums <= B.dnums;
-    end
-
-    function out = ne(A, B)
-      %NE Not equal.
-      [A, B] = promote(A, B);
-      out = A.dnums ~= B.dnums;
-    end
-
-    function out = eq(A, B)
-      %EQ Equals.
-      [A, B] = promote(A, B);
-      out = A.dnums == B.dnums;
-    end
-
-    function out = ge(A, B)
-      %GE Greater than or equal.
-      [A, B] = promote(A, B);
-      out = A.dnums >= B.dnums;
-    end
-
-    function out = gt(A, B)
-      %GT Greater than.
-      [A, B] = promote(A, B);
-      out = A.dnums > B.dnums;
-    end
-
     % Arithmetic
     
-    function out = plus(A, B)
-      %PLUS Addition
-      if ~isa(A, 'datetime')
-        error('Expected left-hand side of A + B to be a datetime; got a %s', ...
+    function out = times(A, B)
+      %TIMES Multiplication
+      if isa(A, 'double')
+        out = B;
+        out.days = out.days .* A;
+      elseif isa(B, 'double')
+        out = A;
+        out.days = out.days .* B;
+      else
+        error('Invalid inputs to times: %s * %s', class(A), class(B));
+      end
+    end
+
+    function out = mtimes(A, B)
+      %MTIMES Multiplication
+      if isa(A, 'double')
+        out = B;
+        out.days = out.days * A;
+      elseif isa(B, 'double')
+        out = A;
+        out.days = out.days * B;
+      else
+        error('Invalid inputs to mtimes: %s * %s', class(A), class(B));
+      end
+    end
+  
+    function out = rdivide(A, B)
+      %RDIVIDE Element-wise right division
+      if ~isa(A, 'duration')
+        error('When dividing using duration, the left-hand side must be a duration; got a %s', ...
           class(A));
       end
       if isa(B, 'duration')
-        out = A;
-        out.dnums = A.dnums + B.days;
+        out = A.days ./ B.days;
       elseif isa(B, 'double')
-        out = A + duration.ofDays(B);
+        out = A;
+        out.days = A.days ./ B;
       else
-        error('Invalid input type: %s', class(B));
+        error('Invalid input: RHS must be duration or double; got a %s', class(B));
+      end
+    end
+    
+    function out = mrdivide(A, B)
+      %MRDIVIDE Matrix right division
+      if ~isa(A, 'duration')
+        error('When dividing using duration, the left-hand side must be a duration; got a %s', ...
+          class(A));
+      end
+      if isa(B, 'double')
+        out = A;
+        out.days = A.days / B;
+      else
+        error('Invalid input: RHS must be double; got a %s', class(B));      
+      end
+    end
+  
+    function out = plus(A, B)
+      %PLUS Addition
+      if isa(A, 'datetime') && isa(B, 'duration')
+        out = A;
+        out.dnums = out.dnums + B.days;
+      elseif isa(A, 'duration') && isa(B, 'datetime')
+        out = B + A;
+      elseif isa(A, 'duration') && isa(B, 'duration')
+        out = A;
+        out.days = A.days + B.days;
+      elseif isa(A, 'duration') && isa(B, 'double')
+        out = A;
+        out.days = A.days + B;
+      elseif isa(A, 'double') && isa(B, 'duration')
+        out = B + A;
       end
     end
     
     function out = minus(A, B)
       %MINUS Subtraction
-      out = A + -B;
+      out = A + (-1 * B);
+    end
+    
+    function out = uminus(A)
+      %UMINUS Unary minus
+      out = A;
+      out.days = -1 * A.days;
+    end
+    
+    function out = uplus(A)
+      %UPLUS Unary plus
+      out = A;
+    end
+  end
+  
+  methods (Static, Access = private)
+    function out = hms2datenum(H, MI, S, MS)
+      if nargin < 4; MS = 0; end
+      out = (H / 24) + (MI / (24 * 60)) + (S / (24 * 60 * 60)) ...
+        + (MS / (24 * 60 * 60 * 1000));
+    end
+    
+    function out = parseTimeStringsToDatenum(strs)
+      strs = cellstr(strs);
+      out = NaN(size(strs));
+      for i = 1:size(strs)
+        strIn = strs{i};
+        str = strIn;
+        ixDot = find(str == '.');
+        if numel(ixDot) > 1
+          error('Invalid TimeString: ''%s''', strIn);
+        elseif ~isempty(ixDot)
+          fractionalSecStr = str(ixDot+1:end);
+          str(ixDot:end) = [];
+          nFracs = str2double(fractionalSecStr);
+          fractionalSec = nFracs / (10^numel(fractionalSecStr));
+          MS = fractionalSec * 1000;          
+        else
+          MS = 0;
+        end
+        els = strsplit(str, ':');
+        if numel(els) == 3
+          D = 0;
+          [H,MI,S] = deal(str2double(els{1}), str2double(els{2}), str2double(els{3}));
+        elseif numel(els) == 4
+          [D,H,MI,S] = deal(str2double(els{1}), str2double(els{2}), ...
+            str2double(els{3}));
+        else
+          error('Invalid TimeString: ''%s''', strIn);
+        end
+        out(i) = duration.hms2datenum(D * 24 + H, MI, S, MS);
+      end
     end
   end
 
@@ -234,98 +278,103 @@ classdef datetime
   % To update this code, re-run jl.code.genPlanarClass() on this file.
   
   methods
-
+  
     function out = numel(this)
     %NUMEL Number of elements in array.
-    out = numel(this.dnums);
+    out = numel(this.days);
     end
     
     function out = ndims(this)
     %NDIMS Number of dimensions.
-    out = ndims(this.dnums);
+    out = ndims(this.days);
     end
     
     function out = size(this)
     %SIZE Size of array.
-    out = size(this.dnums);
+    out = size(this.days);
     end
     
     function out = isempty(this)
     %ISEMPTY True for empty array.
-    out = isempty(this.dnums);
+    out = isempty(this.days);
     end
     
     function out = isscalar(this)
     %ISSCALAR True if input is scalar.
-    out = isscalar(this.dnums);
+    out = isscalar(this.days);
     end
     
     function out = isvector(this)
     %ISVECTOR True if input is a vector.
-    out = isvector(this.dnums);
+    out = isvector(this.days);
     end
     
     function out = iscolumn(this)
     %ISCOLUMN True if input is a column vector.
-    out = iscolumn(this.dnums);
+    out = iscolumn(this.days);
     end
     
     function out = isrow(this)
     %ISROW True if input is a row vector.
-    out = isrow(this.dnums);
+    out = isrow(this.days);
     end
     
     function out = ismatrix(this)
     %ISMATRIX True if input is a matrix.
-    out = ismatrix(this.dnums);
+    out = ismatrix(this.days);
     end
-        
+    
+    function out = isnan(this)
+    %ISNAN True for Not-a-Number.
+    out = isnan2(this.days);
+    end
+    
     function this = reshape(this, varargin)
     %RESHAPE Reshape array.
-    this.dnums = reshape(this.dnums, varargin{:});
+    this.days = reshape(this.days, varargin{:});
     end
     
     function this = squeeze(this, varargin)
     %SQUEEZE Remove singleton dimensions.
-    this.dnums = squeeze(this.dnums, varargin{:});
+    this.days = squeeze(this.days, varargin{:});
     end
     
     function this = circshift(this, varargin)
     %CIRCSHIFT Shift positions of elements circularly.
-    this.dnums = circshift(this.dnums, varargin{:});
+    this.days = circshift(this.days, varargin{:});
     end
     
     function this = permute(this, varargin)
     %PERMUTE Permute array dimensions.
-    this.dnums = permute(this.dnums, varargin{:});
+    this.days = permute(this.days, varargin{:});
     end
     
     function this = ipermute(this, varargin)
     %IPERMUTE Inverse permute array dimensions.
-    this.dnums = ipermute(this.dnums, varargin{:});
+    this.days = ipermute(this.days, varargin{:});
     end
     
     function this = repmat(this, varargin)
     %REPMAT Replicate and tile array.
-    this.dnums = repmat(this.dnums, varargin{:});
+    this.days = repmat(this.days, varargin{:});
     end
     
     function this = ctranspose(this, varargin)
     %CTRANSPOSE Complex conjugate transpose.
-    this.dnums = ctranspose(this.dnums, varargin{:});
+    this.days = ctranspose(this.days, varargin{:});
     end
     
     function this = transpose(this, varargin)
     %TRANSPOSE Transpose vector or matrix.
-    this.dnums = transpose(this.dnums, varargin{:});
+    this.days = transpose(this.days, varargin{:});
     end
     
     function [this, nshifts] = shiftdim(this, n)
     %SHIFTDIM Shift dimensions.
     if nargin > 1
-        this.dnums = shiftdim(this.dnums, n);
+        this.days = shiftdim(this.days, n);
     else
-        [this.dnums,nshifts] = shiftdim(this.dnums);
+        [this.days,nshifts] = shiftdim(this.days);
     end
     end
     
@@ -333,13 +382,13 @@ classdef datetime
     %CAT Concatenate arrays.
     args = varargin;
     for i = 1:numel(args)
-        if ~isa(args{i}, 'datetime')
-            args{i} = datetime(args{i});
+        if ~isa(args{i}, 'duration')
+            args{i} = duration(args{i});
         end
     end
     out = args{1};
-    fieldArgs = cellfun(@(obj) obj.dnums, args, 'UniformOutput', false);
-    out.dnums = cat(dim, fieldArgs{:});
+    fieldArgs = cellfun(@(obj) obj.days, args, 'UniformOutput', false);
+    out.days = cat(dim, fieldArgs{:});
     end
     
     function out = horzcat(varargin)
@@ -394,7 +443,18 @@ classdef datetime
         out = subsref(out, s(2:end));
     end
     end
-        
+    
+    function n = numArgumentsFromSubscript(this,~,indexingContext) %#ok<INUSL>
+    switch indexingContext
+        case matlab.mixin.util.IndexingContext.Statement
+            n = 1; % nargout for indexed reference used as statement
+        case matlab.mixin.util.IndexingContext.Expression
+            n = 1; % nargout for indexed reference used as function argument
+        case matlab.mixin.util.IndexingContext.Assignment
+            n = 1; % nargin for indexed assignment
+    end
+    end
+    
     function [out,Indx] = sort(this)
     %SORT Sort array elements.
     if isvector(this)
@@ -480,11 +540,11 @@ classdef datetime
     if ismember('rows', varargin)
         error('ismember(..., ''rows'') is unsupported');
     end
-    if ~isa(a, 'datetime')
-        a = datetime(a);
+    if ~isa(a, 'duration')
+        a = duration(a);
     end
-    if ~isa(b, 'datetime')
-        b = datetime(b);
+    if ~isa(b, 'duration')
+        b = duration(b);
     end
     [proxyA, proxyB] = proxyKeys(a, b);
     [out,Indx] = ismember(proxyA, proxyB, 'rows');
@@ -528,7 +588,7 @@ classdef datetime
     
     function [keysA,keysB] = proxyKeys(a, b)
     %PROXYKEYS Proxy key values for sorting and set operations
-    propertyValsA = {a.dnums};
+    propertyValsA = {a.days};
     propertyTypesA = cellfun(@class, propertyValsA, 'UniformOutput',false);
     isAllNumericA = all(cellfun(@isnumeric, propertyValsA));
     propertyValsA = cellfun(@(x) x(:), propertyValsA, 'UniformOutput',false);
@@ -538,11 +598,11 @@ classdef datetime
             keysA = cat(2, propertyValsA{:});
         else
             % Properties are heterogeneous or non-numeric; resort to using a table
-            propertyNames = {'dnums'};
+            propertyNames = {'days'};
             keysA = table(propertyValsA{:}, 'VariableNames', propertyNames);
         end
     else
-        propertyValsB = {b.dnums};
+        propertyValsB = {b.days};
         propertyTypesB = cellfun(@class, propertyValsB, 'UniformOutput',false);
         isAllNumericB = all(cellfun(@isnumeric, propertyValsB));
         propertyValsB = cellfun(@(x) x(:), propertyValsB, 'UniformOutput',false);
@@ -553,7 +613,7 @@ classdef datetime
             keysB = cat(2, propertyValsB{:});
         else
             % Properties are heterogeneous or non-numeric; resort to using a table
-            propertyNames = {'dnums'};
+            propertyNames = {'days'};
             keysA = table(propertyValsA{:}, 'VariableNames', propertyNames);
             keysB = table(propertyValsB{:}, 'VariableNames', propertyNames);
         end
@@ -566,16 +626,16 @@ classdef datetime
   
     function this = subsasgnParensPlanar(this, s, rhs)
     %SUBSASGNPARENSPLANAR ()-assignment for planar object
-    if ~isa(rhs, 'datetime')
-        rhs = datetime(rhs);
+    if ~isa(rhs, 'duration')
+        rhs = duration(rhs);
     end
-    this.dnums(s.subs{:}) = rhs.dnums;
+    this.days(s.subs{:}) = rhs.days;
     end
     
     function out = subsrefParensPlanar(this, s)
     %SUBSREFPARENSPLANAR ()-indexing for planar object
     out = this;
-    out.dnums = this.dnums(s.subs{:});
+    out.days = this.days(s.subs{:});
     end
     
     function out = parensRef(this, varargin)
@@ -633,14 +693,3 @@ end
 
 %%%%% END PLANAR-CLASS BOILERPLATE LOCAL FUNCTIONS %%%%%
 
-function varargout = promote(varargin)
-  %PROMOTE Promote inputs to be compatible
-  %
-  % TODO: TimeZone comparison and conversion
-  varargout = varargin;
-  for i = 1:numel(varargin)
-    if ~isa(varargin{i}, 'datetime')
-      varargout{i} = datetime(varargin{i});
-    end
-  end
-end
