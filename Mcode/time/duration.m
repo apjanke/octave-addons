@@ -62,10 +62,10 @@ classdef duration
           if ~isequal(args{2}, 'Backdoor')
             error('Invalid number if inputs: %d', numel(args));
           end
-          if ~isa(args{1}, 'double')
-            error('Input must be double; got %s', class(args{1}));
+          if ~isnumeric(args{1})
+            error('Input must be numeric; got a %s', class(args{1}));
           end
-          this.days = args{1};
+          this.days = double(args{1});
         case 3
           [H,MI,S] = args{:};
           this.days = duration.hms2datenum(H, MI, S, 0);
@@ -233,6 +233,7 @@ classdef duration
   methods (Static, Access = private)
     function out = hms2datenum(H, MI, S, MS)
       if nargin < 4; MS = 0; end
+      [H, MI, S, MS] = deal(double(H), double(MI), double(S), double(MS));
       out = (H / 24) + (MI / (24 * 60)) + (S / (24 * 60 * 60)) ...
         + (MS / (24 * 60 * 60 * 1000));
     end
