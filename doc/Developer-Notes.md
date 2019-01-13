@@ -9,6 +9,8 @@ octave-addons Developer Notes
   * This crash seems to be gone in 4.4.1
 * Add BISTs
 
+* Add a dispstr() API package?
+
 # Notes on function areas
 
 
