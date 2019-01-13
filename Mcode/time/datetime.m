@@ -248,7 +248,11 @@ classdef datetime
     
     function out = minus(A, B)
       %MINUS Subtraction
-      out = A + -B;
+      if isa(A, 'datetime') && isa(B, 'datetime')
+        out = duration.ofDays(A.dnums - B.dnums);
+      else
+        out = A + -B;
+      end
     end
   end
 
