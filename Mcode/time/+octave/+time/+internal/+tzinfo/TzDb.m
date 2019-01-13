@@ -70,8 +70,16 @@ classdef TzDb
       %DEFINEDZONES List defined zone IDs
       %
       % out = definedZones(this)
-      tab = this.zoneTab;
-      out = tab.TZ;
+      persistent value
+      if isempty(value)
+        specialFiles = {'+VERSION', 'iso3166.tab', 'zone.tab', 'posixrules'};
+        files = findFiles(this.path);
+        if ispc
+          files = strrep(files, '\', '/');
+        end
+        value = setdiff(files', specialFiles);
+      end
+      out = value;
     end
     
     function out = zoneDefinition(this, zoneId)
@@ -295,4 +303,30 @@ function out = slurpBinaryFile(file)
   cleanup.fid = onCleanup(@() fclose(fid));
   out = fread(fid, Inf, 'uint8=>uint8');
   out = out';  
+end
+
+function out = findFiles(dirPath)
+  %FINDFILES Recursively find files under a directory
+  out = findFilesStep(dirPath, '');
+end
+
+function out = findFilesStep(dirPath, pathPrefix)
+  found = {};
+  d = mydir(dirPath);
+  for i = 1:numel(d)
+    f = d(i);
+    if f.isdir
+      found = [found findFilesStep(fullfile(dirPath, f.name), fullfile(pathPrefix, f.name))];
+    else
+      found{end+1} = fullfile(pathPrefix, f.name);
+    end
+  end
+  out = found;
+end
+
+function out = mydir(folder)
+  d = dir(folder);
+  names = {d.name};
+  out = d;
+  out(ismember(names, {'.','..'})) = [];
 end

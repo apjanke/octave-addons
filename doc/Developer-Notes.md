@@ -4,7 +4,7 @@ octave-addons Developer Notes
 # Overall TODO
 
 * Convert to GNU code style
-* Report the Octave crash that happens when I'm in a file stopped in the debugger, make changes to that file, and save it with Cmd-S while it's still stopped in the debugger.
+* Report the Octave crash that happens when I'm in a file stopped in the debugger, make changes to that file, and save it with Cmd-S while it's still stopped in the debugger. The changes to the file do not appear, so the crash happens before the write hits the disk.
 
 # Notes on function areas
 
@@ -33,7 +33,6 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
 * `TzDb`
   * timezones top-level function
     * Requires `table`
-  * Fix defined time zone listing: the list in zone.tab is not complete
 * Fix parsing bug with that trailing data/time zone in the zoneinfo files
 * `calDuration` and its associated functions
 * Plotting support
