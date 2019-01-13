@@ -939,8 +939,6 @@ end
 
 function varargout = promote(varargin)
   %PROMOTE Promote inputs to be compatible
-  %
-  % TODO: TimeZone comparison and conversion
   args = varargin;
   for i = 1:numel(args)
     if ~isa(args{i}, 'datetime')
