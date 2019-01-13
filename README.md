@@ -13,7 +13,7 @@ All the code in here is experimental. Do not use it in any production code!
 Installation:
 
 * Clone the repo
-  * `git clone https://github.com/apjanke/octave`
+  * `git clone https://github.com/apjanke/octave-addons`
 * Build all the octfiles
   * Running `oct_addons_build_all_octfiles` will do this
     * (As soon as I have implemented it, that is.)
