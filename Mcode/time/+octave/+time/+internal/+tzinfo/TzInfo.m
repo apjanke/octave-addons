@@ -40,6 +40,7 @@ classdef TzInfo
     end
     
     function prettyprint(this)
+      %PRETTYPRINT Display this' data in human-readable format.
       if ~isscalar(this)
         fprintf('%s: %s\n', class(this), size2str(size(this)));
         return;
@@ -78,7 +79,7 @@ classdef TzInfo
   
   methods (Access = private)
     function displayCommonInfo(this)
-      % Info common to disp() and prettyprint()
+      %DISPLAYCOMMONINFO Info common to disp() and prettyprint()
       formatId = this.formatId;
       if formatId == 0
         formatId = '1';
