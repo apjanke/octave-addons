@@ -700,7 +700,7 @@ for i = 1:nargin
 			sz = sz_i;
 		else
 			if ~isequal(sz, sz_i)
-				error('jl:InconsistentDimensions', 'Matrix dimensions must agree (%s vs %s)',...
+				error('Matrix dimensions must agree (%s vs %s)',...
 					size2str(sz), size2str(sz_i))
 			end
 		end
