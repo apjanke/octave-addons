@@ -1,7 +1,9 @@
 octave-addons Developer Notes
 =============================
 
+# Overall TODO
 
+* Convert to GNU code style
 
 # Notes on function areas
 
@@ -48,6 +50,8 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
 
 ### TODO
 
-* Everything
+* Relational operations
+  * merge, setdiff, union, intersect
+* unique
 
 ##
