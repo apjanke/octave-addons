@@ -140,13 +140,18 @@ classdef TzDb
     end
 
     function [out, nBytesRead] = parseZoneSection(this, data, sectionFormat)
+      %PARSEZONESECTION Parse one section of a tzinfo file
+      
+      % "cursor" index pointing to current point of parsing
+      ix = 1; 
+      % "get" functions read/convert data; "take" functions read/convert and
+      % advance the cursor
       function out = getint(my_bytes)
         out = swapbytes(typecast(my_bytes, 'int32'));
       end
       function out = getint64(my_bytes)
         out = swapbytes(typecast(my_bytes, 'int64'));
       end
-      ix = 1; % "cursor" index pointing to current point of parsing
       function out = take_byte(n)
         if nargin < 1; n = 1; end
         out = data(ix:ix+n-1);
@@ -161,6 +166,13 @@ classdef TzDb
         if nargin < 1; n = 1; end
         out = getint64(data(ix:ix+(8*n)-1));
         ix = ix + 8*n;
+      end
+      function out = take_timeval(n)
+        if sectionFormat == 1
+          out = take_int(n);
+        else
+          out = take_int64(n);
+        end
       end
 
       % Header
@@ -181,13 +193,6 @@ classdef TzDb
       h.n_char = counts_vals(6);
       
       % Body
-      function out = take_timeval(n)
-        if sectionFormat == 1
-          out = take_int(n);
-        else
-          out = take_int64(n);
-        end
-      end
       transitions = take_timeval(h.n_time);
       time_types = take_byte(h.n_time);
       ttinfos = struct('gmtoff',int32([]), 'isdst',uint8([]), 'abbrind',uint8([]));
