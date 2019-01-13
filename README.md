@@ -10,12 +10,16 @@ All the code in here is experimental. Do not use it in any production code!
 
 ## Installation and usage
 
+Installation:
+
 * Clone the repo
   * `git clone https://github.com/apjanke/octave`
-* Add the `Mcode/` directory to your Octave path
 * Build all the octfiles
   * Running `oct_addons_build_all_octfiles` will do this
     * (As soon as I have implemented it, that is.)
+
+Usage:
+* Run the `load_octave_addons` function from `boostrap/` to set up your path with this library.
 
 ## Naming conventions
 
