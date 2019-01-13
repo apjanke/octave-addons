@@ -34,6 +34,18 @@ classdef datetime
     function out = NaT()
       out = datetime(NaN, 'Backdoor');
     end
+    
+    function out = SystemTimeZone()
+      %SYSTEMTIMEZONE The default system time zone
+      %
+      % Returns the identifier for the default system time zone for this Octave
+      % process.
+      if ~usejava('jvm')
+        error('SystemTimeZone requires Java, which is not available in this Octave');
+      end
+      zone = javaMethod('getDefault', 'java.util.TimeZone');
+      out = char(zone.getID());
+    end
   end
 
   methods
