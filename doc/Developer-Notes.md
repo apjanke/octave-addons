@@ -22,7 +22,6 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
   * week() function
   * isdst/isweekend
   * between, caldiff, dateshift, isbetween
-  * colon operator
   * linspace()
   * Time zone conversion
   * Leap second conversion

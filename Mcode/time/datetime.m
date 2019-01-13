@@ -484,6 +484,30 @@ classdef datetime
       %DIFF Differences between elements
       out = duration.ofDays(diff(this.dnums));
     end
+    
+    function out = colon(this, varargin)
+      switch nargin
+        case 2
+          limit = varargin{1};
+          increment = 1;
+        case 3
+          increment = varargin{1};
+          limit = varargin{2};
+        otherwise
+          error('Invalid number of arguments');
+      end
+      if isnumeric(increment)
+        increment = duration.ofDays(increment);
+      end
+      if ~isa(increment, 'duration')
+        error('increment must be a duration object');
+      end
+      if ~isscalar(this) || ~isscalar(limit)
+        error('base and limit must both be scalar');
+      end
+      out = this;
+      out.dnums = this.dnums:increment.days:limit.dnums;
+    end
   end
 
   %%%%% START PLANAR-CLASS BOILERPLATE CODE %%%%%
