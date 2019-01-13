@@ -4,6 +4,7 @@ octave-addons Developer Notes
 # Overall TODO
 
 * Convert to GNU code style
+* Report the Octave crash that happens when I'm in a file stopped in the debugger, make changes to that file, and save it with Cmd-S while it's still stopped in the debugger.
 
 # Notes on function areas
 
@@ -50,10 +51,11 @@ See `man tzfile` or [here](http://man7.org/linux/man-pages/man5/tzfile.5.html) f
 
 ### TODO
 
+* Proxykeys
 * Relational operations
   * merge, setdiff, union, intersect
 * unique
-* Get .-reference assignment to work
+* Get subsasgn assignment to work
  * It's currently erroring: `error: invalid dot name structure assignment because the structure array is empty.  Specify a subscript on the structure array to resolve.`
 
 ##
