@@ -17,7 +17,7 @@ classdef datetime
     dnums % @planar
   end
   properties
-    % Time zone code as charvec
+    % Time zone code as charvec. Assigning a new TimeZone performs time zone conversion.
     TimeZone = ''
   end
   
