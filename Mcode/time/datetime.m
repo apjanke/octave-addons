@@ -933,7 +933,7 @@ function varargout = promote(varargin)
       args{i} = datetime(args{i});
     end
   end
-  tz0 = args{tz0};
+  tz0 = args{1}.TimeZone;
   for i = 2:numel(args)
     if ~isequal(args{i}.TimeZone, tz0)
       if isempty(tz0) || isempty(args{i}.TimeZone)
