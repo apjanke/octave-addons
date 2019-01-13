@@ -20,6 +20,9 @@ classdef datetime
     % Time zone code as charvec
     TimeZone = ''
   end
+  properties (Constant)
+    NaT = datetime(NaN, 'Backdoor');
+  end
   
   methods (Static)
     function out = ofDatenum(dnums)
