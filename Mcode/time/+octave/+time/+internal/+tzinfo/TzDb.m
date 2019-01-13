@@ -24,6 +24,13 @@ classdef TzDb
         this.path = path;
       end
     end
+    
+    function out = dbVersion(this)
+      %DBVERSION Version of the zoneinfo database this is reading
+      versionFile = [this.path '/+VERSION'];
+      txt = slurpTextFile(versionFile);
+      out = strtrim(txt);
+    end
         
     function out = zoneTab(this)
       %ZONETAB Get the zone definition table
