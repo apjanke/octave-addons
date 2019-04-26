@@ -98,7 +98,7 @@ classdef string
         for i = 1:numel(out)
           % This would need to be replaced with a non-Java implementation
           j_str = javaObject('java.lang.String', this.strs{i});
-          out = javaMethod('codePointCount', j_str, 0, numel(this.strs{i}));
+          out(i) = javaMethod('codePointCount', j_str, 0, numel(this.strs{i}));
         end
       end
       
@@ -162,7 +162,7 @@ classdef string
       end
       
       function out = erase(this, match)
-        %ERASE matching substring
+        %ERASE Erase matching substring
         out = this;
         out.strs = strrep(this.strs, char(match), '');
       end
@@ -289,7 +289,6 @@ classdef string
 
       function [out,Indx] = ismember(a, b, varargin)
         %ISMEMBER True for set member.
-        fprintf('ismember\n');
         if ~isa(a, 'string')
             a = string(a);
         end
